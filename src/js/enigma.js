@@ -34,29 +34,68 @@ const rotors = [
     },
 ];
 
-const reflector = {
+const reflectors = [
+    {
     name: 'UKW',
     wiring: 'IMETCGFRAYSQBZXWLHKDVUPOJN'
+    }
+];
+
+const testingRotors = {
+    fast: {
+        wiring: 'PCEGIKMDQSUYWAOZFJXHBLNVTR',
+        turnLetter: 'W',
+        turn: alphabet.indexOf('W')
+    },
+    mid: {
+        wiring: 'FBKELTJSVYCMIXUNDRHAOQZGWP',
+        turnLetter: 'F',
+        turn: alphabet.indexOf('F')
+    },
+    slow: {
+        wiring: 'KFLNGMHERWAOUPXZIYVTQBJCSD',
+        turnLetter: 'R',
+        turn: alphabet.indexOf('R')
+    }
+};
+
+const testingReflector = {
+    wiring: 'YRUHQSLDPXNGOKMIEBFZCWVJAT'
 };
 
 let plugboard;
+let reflectorInstalled;
 let rotorsInstalled;
 let rotorsPositions;
 
 
 window.onload = function () {
-    setDefaultSettings();
+    setRandomInitialSetting();
 
     document.addEventListener('keydown', onButtonPressed);
     document.addEventListener('keyup', onButtonReleased);
 };
 
-function setDefaultSettings() {
+function setTestingInitialSetting() {
+    reflectorInstalled = testingReflector;
+    rotorsInstalled = testingRotors;
+    rotorsPositions = {
+        fast: 0,
+        mid: 0,
+        slow: 0
+    };
+}
+
+function setRandomInitialSetting() {
+    reflectorInstalled = pickRandomReflector();
     rotorsInstalled = pickRandomRotors();
-    console.log(rotorsInstalled);
     rotorsPositions = pickRotorStartingPositions();
-    console.log(rotorsPositions);
     plugboard = pickRandomPlugboardSetting();
+}
+
+function pickRandomReflector() {
+    const n = reflectors.length;
+    return reflectors[Math.floor(n * Math.random())];
 }
 
 function pickRandomRotors() {
@@ -84,9 +123,9 @@ function pickRandomRotors() {
 function pickRotorStartingPositions() {
     // TODO implement the table to pick from, like Germans had it during WW2
     return {
-        fast: Math.ceil(26 * Math.random()),
-        mid: Math.ceil(26 * Math.random()),
-        slow: Math.ceil(26 * Math.random())
+        fast: Math.floor(26 * Math.random()),
+        mid: Math.floor(26 * Math.random()),
+        slow: Math.floor(26 * Math.random())
     };
 }
 
@@ -102,7 +141,6 @@ function stepRotors() {
         rotorsPositions.mid = (rotorsPositions.mid + 1) % nLetters;
     }
     rotorsPositions.fast = (rotorsPositions.fast + 1) % nLetters;
-    console.log(rotorsPositions);
 }
 
 function onButtonPressed(event) {
@@ -129,28 +167,17 @@ function onButtonReleased(event) {
 }
 
 function encodeCharacter(c) {
-    console.log('Encoding character ' + c);
+    stepRotors();
 
     // TODO map with plugboard
     let letter = mapWithPlugboard(c);
-
-    console.log(letter);
     letter = mapWithRotor(letter, 'fast');
-    console.log(letter);
     letter = mapWithRotor(letter, 'mid');
-    console.log(letter);
     letter = mapWithRotor(letter, 'slow');
-    console.log(letter);
     letter = mapWithReflector(letter);
-    console.log(letter);
-    stepRotors();
-
     letter = mapWithInverseRotor(letter, 'slow');
-    console.log(letter);
     letter = mapWithInverseRotor(letter, 'mid');
-    console.log(letter);
     letter = mapWithInverseRotor(letter, 'fast');
-    console.log(letter);
 
     return letter;
 }
@@ -160,18 +187,28 @@ function mapWithPlugboard(char) {
 }
 
 function mapWithRotor(char, rotor) {
-    const positionInAlphabet = alphabet.indexOf(char);
-    const mapsToPosition = (positionInAlphabet + rotorsPositions[rotor]) % nLetters;
-    return rotorsInstalled[rotor].wiring[mapsToPosition];
+    // Get index of input character.
+    const rotorInput = alphabet.indexOf(char);
+    // Get letter that enters the wiring.
+    const rotorBeforeWiring = alphabet[(rotorInput + rotorsPositions[rotor] + nLetters) % nLetters];
+    // Send the signal through wiring.
+    const rotorAfterWiring = rotorsInstalled[rotor].wiring[alphabet.indexOf(rotorBeforeWiring)];
+    // Return actual output of the rotor.
+    return alphabet[(alphabet.indexOf(rotorAfterWiring) - rotorsPositions[rotor] + nLetters) % nLetters];
 }
 
 function mapWithReflector(char) {
     const positionInAlphabet = alphabet.indexOf(char);
-    return reflector.wiring[positionInAlphabet];
+    return reflectorInstalled.wiring[positionInAlphabet];
 }
 
 function mapWithInverseRotor(char, rotor) {
-    const positionInMap = rotorsInstalled[rotor].wiring.indexOf(char);
-    const inverseMapsToPosition = (positionInMap + rotorsPositions[rotor]) % nLetters;
-    return alphabet[inverseMapsToPosition];
+    // Get index of input character.
+    const rotorInput = alphabet.indexOf(char);
+    // Get letter on the right side of the wiring.
+    const rotorBeforeWiring = alphabet[(rotorInput + rotorsPositions[rotor] + nLetters) % nLetters];
+    // Send the signal back through wiring.
+    const rotorAfterWiring = alphabet[rotorsInstalled[rotor].wiring.indexOf(rotorBeforeWiring)];
+    // Return the actual character.
+    return alphabet[(alphabet.indexOf(rotorAfterWiring) - rotorsPositions[rotor] + nLetters) % nLetters];
 }
