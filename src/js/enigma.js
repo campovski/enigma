@@ -148,16 +148,6 @@ function pickRandomPlugboardSetting() {
     return plugboard;
 }
 
-function stepRotors() {
-    if (rotorsPositions.fast === rotorsInstalled.fast.turn) {
-        if (rotorsPositions.mid === rotorsInstalled.mid.turn) {
-            rotorsPositions.slow = (rotorsPositions.slow + 1) % nLetters;
-        }
-        rotorsPositions.mid = (rotorsPositions.mid + 1) % nLetters;
-    }
-    rotorsPositions.fast = (rotorsPositions.fast + 1) % nLetters;
-}
-
 function onButtonPressed(event) {
     if (event.which >= 65 && event.which <= 90) {
         document.removeEventListener('keydown', onButtonPressed);
@@ -165,11 +155,17 @@ function onButtonPressed(event) {
         const char = String.fromCharCode(event.which);
         const buttonPressed = document.getElementById('keyboard-' + char);
         buttonPressed.classList.add('keyboard-letter-pressed');
+        const labelInput = document.getElementById('text-input');
+        labelInput.innerText = labelInput.innerText + char;
+        labelInput.scrollTop = labelInput.scrollHeight;
 
         const encodedCharacter = encodeCharacter(char);
 
         const lampTriggered = document.getElementById('lampboard-' + encodedCharacter);
         lampTriggered.classList.add('lampboard-letter-pressed');
+        const labelOutput = document.getElementById('text-output');
+        labelOutput.innerText = labelOutput.innerText + encodedCharacter;
+        labelOutput.scrollTop = labelOutput.scrollHeight;
     }
 }
 
@@ -186,6 +182,16 @@ function onButtonReleased(event) {
 
         document.addEventListener('keydown', onButtonPressed);
     }
+}
+
+function stepRotors() {
+    if (rotorsPositions.fast === rotorsInstalled.fast.turn) {
+        if (rotorsPositions.mid === rotorsInstalled.mid.turn) {
+            rotorsPositions.slow = (rotorsPositions.slow + 1) % nLetters;
+        }
+        rotorsPositions.mid = (rotorsPositions.mid + 1) % nLetters;
+    }
+    rotorsPositions.fast = (rotorsPositions.fast + 1) % nLetters;
 }
 
 function encodeCharacter(c) {
