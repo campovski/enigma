@@ -2,6 +2,9 @@ body {
     background-color: cornsilk;
 }
 
+/*
+LEFT COLUMN: INPUT AND OUTPUT TEXT
+ */
 #text {
     width: 20%;
     margin: 20px auto;
@@ -33,6 +36,9 @@ body {
     display: none;
 }
 
+/*
+MIDDLE COLUMN: ENIGMA
+ */
 #enigma {
     margin: 0 auto;
     width: 60%;
@@ -92,4 +98,29 @@ body {
 .lampboard-letter-pressed {
     background-color: gold;
     color: black;
+}
+
+/*
+RIGHT COLUMN: SETTINGS
+ */
+#settings {
+    width: 20%;
+    margin: 20px auto;
+    float: left;
+}
+
+.setting {
+    width: 90%;
+    margin: 50px auto;
+}
+
+.setting-rotor-container {
+    width: 100%;
+    margin: 20px auto;
+}
+
+.setting-rotor {
+    display: block;
+    width: 80%;
+    margin: 0 auto;
 }

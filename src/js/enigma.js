@@ -73,6 +73,26 @@ let rotorsPositions;
 window.onload = function () {
     setRandomInitialSetting();
 
+    // Populate select objects for rotors' settings.
+    const DOMRotors = {
+        fast: document.getElementById('select-rotor-fast'),
+        mid: document.getElementById('select-rotor-mid'),
+        slow: document.getElementById('select-rotor-slow')
+    };
+
+    for (const speed in DOMRotors) {
+        for (let i = 0; i < rotors.length; i++) {
+            const option = document.createElement('option');
+            option.value = rotors[i].name + '\n' + rotors[i].wiring;
+            option.text = rotors[i].name;
+            DOMRotors[speed].add(option);
+
+            if (rotors[i].name === rotorsInstalled[speed].name) {
+                DOMRotors[speed].selectedIndex = i;
+            }
+        }
+    }
+
     document.addEventListener('keydown', onButtonPressed);
     document.addEventListener('keyup', onButtonReleased);
 };
