@@ -83,7 +83,7 @@ window.onload = function () {
     for (const speed in DOMRotors) {
         for (let i = 0; i < rotors.length; i++) {
             const option = document.createElement('option');
-            option.value = rotors[i].name + '\n' + rotors[i].wiring;
+            option.value = rotors[i].name;
             option.text = rotors[i].name;
             DOMRotors[speed].add(option);
 
