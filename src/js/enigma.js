@@ -160,23 +160,30 @@ function stepRotors() {
 
 function onButtonPressed(event) {
     if (event.which >= 65 && event.which <= 90) {
-        const char = String.fromCharCode(event.which);
-        const buttonPressed = document.getElementById('keyboard_' + char);
-
-        buttonPressed.classList.add('keyboard-letter-pressed');
         document.removeEventListener('keydown', onButtonPressed);
 
+        const char = String.fromCharCode(event.which);
+        const buttonPressed = document.getElementById('keyboard-' + char);
+        buttonPressed.classList.add('keyboard-letter-pressed');
+
         const encodedCharacter = encodeCharacter(char);
-        console.log('Mapped ' + char + ' to ' + encodedCharacter);
+
+        const lampTriggered = document.getElementById('lampboard-' + encodedCharacter);
+        lampTriggered.classList.add('lampboard-letter-pressed');
     }
 }
 
 function onButtonReleased(event) {
     if (event.which >= 65 && event.which <= 90) {
         const char = String.fromCharCode(event.which);
-        const buttonPressed = document.getElementById('keyboard_' + char);
-
+        const buttonPressed = document.getElementById('keyboard-' + char);
         buttonPressed.classList.remove('keyboard-letter-pressed');
+
+        const lamps = document.getElementsByClassName('lampboard-letter');
+        for (const lamp of lamps) {
+            lamp.classList.remove('lampboard-letter-pressed');
+        }
+
         document.addEventListener('keydown', onButtonPressed);
     }
 }
