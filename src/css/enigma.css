@@ -1,0 +1,35 @@
+#content {
+    margin: 0 auto;
+    max-width: 80%;
+    text-align: center;
+}
+
+#keyboard {
+    width: 70%;
+    margin: 0 auto;
+    padding: 1px 0;
+    background-color: gray;
+    border-radius: 25px;
+}
+
+.keyboard_row {
+    display: block;
+    margin: 40px auto;
+}
+
+.keyboard_letter {
+    display: inline-block;
+    margin: 0 20px;
+    width: 50px;
+    height: 50px;
+    line-height: 50px;
+    background-color: black;
+    border-radius: 25px;
+    color: wheat;
+    font-size: 30px;
+}
+
+.keyboard-letter-pressed {
+    background-color: gold;
+    color: black;
+}
