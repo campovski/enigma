@@ -1,5 +1,6 @@
 const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 const nLetters = alphabet.length;
+const maxPlugboardPairs = 10;
 
 const rotors = [
     {
@@ -36,8 +37,8 @@ const rotors = [
 
 const reflectors = [
     {
-    name: 'UKW',
-    wiring: 'IMETCGFRAYSQBZXWLHKDVUPOJN'
+        name: 'UKW',
+        wiring: 'IMETCGFRAYSQBZXWLHKDVUPOJN'
     }
 ];
 
@@ -89,7 +90,7 @@ function setTestingInitialSetting() {
 function setRandomInitialSetting() {
     reflectorInstalled = pickRandomReflector();
     rotorsInstalled = pickRandomRotors();
-    rotorsPositions = pickRotorStartingPositions();
+    rotorsPositions = pickRandomRotorStartingPositions();
     plugboard = pickRandomPlugboardSetting();
 }
 
@@ -120,17 +121,31 @@ function pickRandomRotors() {
     };
 }
 
-function pickRotorStartingPositions() {
-    // TODO implement the table to pick from, like Germans had it during WW2
+function pickRandomRotorStartingPositions() {
     return {
-        fast: Math.floor(26 * Math.random()),
-        mid: Math.floor(26 * Math.random()),
-        slow: Math.floor(26 * Math.random())
+        fast: Math.floor(nLetters * Math.random()),
+        mid: Math.floor(nLetters * Math.random()),
+        slow: Math.floor(nLetters * Math.random())
     };
 }
 
 function pickRandomPlugboardSetting() {
+    const plugboard = {};
+    const nPairs = Math.ceil(maxPlugboardPairs * Math.random());
+    let letter1, letter2;
 
+    for (let i = 0; i < nPairs; i++) {
+        do {
+            letter1 = alphabet[Math.floor(nLetters * Math.random())];
+        } while (letter1 in plugboard);
+        do {
+            letter2 = alphabet[Math.floor(nLetters * Math.random())];
+        } while (letter2 in plugboard || letter2 === letter1);
+        plugboard[letter1] = letter2;
+        plugboard[letter2] = letter1;
+    }
+
+    return plugboard;
 }
 
 function stepRotors() {
@@ -178,12 +193,13 @@ function encodeCharacter(c) {
     letter = mapWithInverseRotor(letter, 'slow');
     letter = mapWithInverseRotor(letter, 'mid');
     letter = mapWithInverseRotor(letter, 'fast');
+    letter = mapWithPlugboard(letter);
 
     return letter;
 }
 
 function mapWithPlugboard(char) {
-    return char;
+    return plugboard[char] === undefined ? char : plugboard[char];
 }
 
 function mapWithRotor(char, rotor) {
