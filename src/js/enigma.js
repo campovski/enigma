@@ -312,7 +312,14 @@ function onButtonReleased(event) {
     }
 }
 
-function onSettingChange() {
+function onSettingChange(event) {
+    // In case a user empties the input element, we asynchronously wait if he will input
+    // something. If not, we use the default value and perform the change of settings.
+    if (event !== undefined && event.data === null) {
+        setTimeout(onSettingChange, 2000);
+        return;
+    }
+
     const settings = getDomSettingsElements();
     const string = document.getElementById('text-input').innerText;
 
@@ -321,15 +328,20 @@ function onSettingChange() {
     }
 
     for (const inputInitialPosition of settings.rotors.initialPosition) {
+        inputInitialPosition.classList.remove('wrong-input');
         const rotor = inputInitialPosition.id.split('-')[3];
-        const initialPosition = alphabet.indexOf(inputInitialPosition.value.toUpperCase());
-        if (initialPosition !== -1 && inputInitialPosition.value !== '') {
-            rotorsPositions[rotor] = initialPosition;
-        } else {
-            // TODO notify user of wrong input
-            console.log('Unknown initial position for ' + rotor +  ' rotor, setting it to 0.');
+        const inputInitialPositionValue = inputInitialPosition.value.toUpperCase();
+        if (inputInitialPositionValue === '') {
             rotorsPositions[rotor] = 0;
             inputInitialPosition.value = alphabet[0];
+        } else {
+            const initialPosition = alphabet.indexOf(inputInitialPositionValue);
+            if (initialPosition !== -1 && inputInitialPosition.value !== '') {
+                rotorsPositions[rotor] = initialPosition;
+            } else {
+                inputInitialPosition.classList.add('wrong-input');
+                return;
+            }
         }
     }
 

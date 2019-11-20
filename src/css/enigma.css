@@ -191,3 +191,10 @@ input.setting-rotor {
 .disabled:hover {
     border: 1px dashed burlywood;
 }
+
+input.wrong-input,
+input.wrong-input:hover,
+input.wrong-input:focus {
+    border: 1px solid red;
+    color: red;
+}
