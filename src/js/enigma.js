@@ -113,6 +113,10 @@ window.onload = function () {
         DOMTurnNextRotors[speed].value = rotorsInstalled[speed].turnLetter;
     }
 
+    const DOMPlugboard = document.getElementById('input-plugboard');
+    DOMPlugboard.value = plugboardToString(plugboard);
+
+    // Event listeners
     document.addEventListener('keydown', onButtonPressed, false);
     document.addEventListener('keyup', onButtonReleased, false);
 
@@ -127,6 +131,9 @@ window.onload = function () {
         rotorInitialPositionInput.addEventListener('keydown', stopEvent, true);
         rotorInitialPositionInput.addEventListener('keyup', stopEvent, true);
     }
+    settingsElements.plugboard.addEventListener('input', onSettingChange);
+    settingsElements.plugboard.addEventListener('keydown', stopEvent, true);
+    settingsElements.plugboard.addEventListener('keyup', stopEvent, true);
 };
 
 function setTestingInitialSetting() {
@@ -148,22 +155,22 @@ function setRandomInitialSetting() {
 
 function pickRandomReflector() {
     const n = reflectors.length;
-    return reflectors[Math.floor(n * Math.random())];
+    return reflectors[n * Math.random() << 0];
 }
 
 function pickRandomRotors() {
     const n = rotors.length;
 
-    const indexFast = Math.floor(n * Math.random());
+    const indexFast = n * Math.random() << 0;
     let indexMid;
     let indexSlow;
 
     do {
-        indexMid = Math.floor(n * Math.random());
+        indexMid = n * Math.random() << 0;
     } while (indexMid === indexFast);
 
     do {
-        indexSlow = Math.floor(n * Math.random());
+        indexSlow = n * Math.random() << 0;
     } while (indexSlow === indexMid || indexSlow === indexFast);
 
     return {
@@ -175,9 +182,9 @@ function pickRandomRotors() {
 
 function pickRandomRotorStartingPositions() {
     return {
-        fast: Math.floor(nLetters * Math.random()),
-        mid: Math.floor(nLetters * Math.random()),
-        slow: Math.floor(nLetters * Math.random())
+        fast: nLetters * Math.random() << 0,
+        mid: nLetters * Math.random() << 0,
+        slow: nLetters * Math.random() << 0
     };
 }
 
@@ -188,10 +195,10 @@ function pickRandomPlugboardSetting() {
 
     for (let i = 0; i < nPairs; i++) {
         do {
-            letter1 = alphabet[Math.floor(nLetters * Math.random())];
+            letter1 = alphabet[nLetters * Math.random() << 0];
         } while (letter1 in plugboard);
         do {
-            letter2 = alphabet[Math.floor(nLetters * Math.random())];
+            letter2 = alphabet[nLetters * Math.random() << 0];
         } while (letter2 in plugboard || letter2 === letter1);
         plugboard[letter1] = letter2;
         plugboard[letter2] = letter1;
@@ -224,7 +231,6 @@ function encodeCharacter(c) {
     letter = mapWithInverseRotor(letter, 'slow');
     letter = mapWithInverseRotor(letter, 'mid');
     letter = mapWithInverseRotor(letter, 'fast');
-    letter = mapWithPlugboard(letter);
 
     return letter;
 }
@@ -316,14 +322,15 @@ function onButtonReleased(event) {
 }
 
 function onSettingChange(event) {
+    const settings = getDomSettingsElements();
+
     // In case a user empties the input element, we asynchronously wait if he will input
     // something. If not, we use the default value and perform the change of settings.
-    if (event !== undefined && event.data === null) {
+    if (event !== undefined && event.data === null && event.target.id !== settings.plugboard.id) {
         setTimeout(onSettingChange, 2000);
         return;
     }
 
-    const settings = getDomSettingsElements();
     const string = document.getElementById('text-input').innerText;
 
     for (const selectRotor of settings.rotors.type) {
@@ -358,7 +365,79 @@ function onSettingChange(event) {
         inputTurnLetter.value = rotorsInstalled[rotor].turnLetter;
     }
 
+    const validPlugboardString = reformatPlugboardSettingString();
+    if (validPlugboardString) {
+        settings.plugboard.classList.remove('wrong-input');
+        plugboard = stringToPlugboard(settings.plugboard.value);
+    } else {
+        settings.plugboard.classList.add('wrong-input');
+        return;
+    }
+
     document.getElementById('text-output').innerText = encodeString(string);
+}
+
+function reformatPlugboardSettingString() {
+    const inputPlugboard = getDomSettingsElements().plugboard;
+    const plugboardString = inputPlugboard.value
+        .trim()
+        .toUpperCase()
+        .split('')
+        .filter(c => isLetter(c) || c === ' ')
+        .join('');
+
+    if (plugboardString === '') {
+        inputPlugboard.value = '';
+        return true;
+    }
+
+    const elements = plugboardString.split(' ').filter(element => element.length !== 0);
+    const triplets = elements.filter(element => element.length === 3);
+    const tripletsCropped = triplets.map(triplet => triplet.substr(0, 2) + ' ' + triplet[2]);
+    for (let i = 0; i < elements.length; i++) {
+        const tripletIndex = triplets.indexOf(elements[i]);
+        if (tripletIndex !== -1) {
+            elements[i] = tripletsCropped[tripletIndex];
+        }
+    }
+
+    inputPlugboard.value = elements.join(' ');
+
+    const uniqueCharsWithSpaces = plugboardString.split('').filter((c, i, a) => c === ' ' || a.indexOf(c) === i);
+    return elements.length === elements.filter(element => element.length === 2).length &&
+        plugboardString.length === uniqueCharsWithSpaces.length;
+}
+
+function stringToPlugboard(s) {
+    const plugboard = {};
+    const pairs = s.split(' ');
+    pairs.forEach(pair => {
+        plugboard[pair[0]] = pair[1];
+        plugboard[pair[1]] = pair[0];
+    });
+
+    return plugboard;
+}
+
+function plugboardToString(plugboard) {
+    plugboard = Object.assign({}, plugboard);
+
+    let plugboardString = '';
+    let keys = Object.keys(plugboard).sort();
+
+    while (keys.length > 0) {
+        const key = keys[0];
+        plugboardString += ' ' + (key < plugboard[key] ? key + plugboard[key] : plugboard[key] + key);
+        delete plugboard[plugboard[key]];
+        delete plugboard[key];
+        keys = Object.keys(plugboard).sort();
+    }
+
+    return plugboardString.trim();
+}
+
+function isLetter(c) {
+    return c.toLowerCase() !== c.toUpperCase();
 }
 
 function stopEvent(event) {
@@ -372,6 +451,7 @@ function getDomSettingsElements() {
             initialPosition: document.querySelectorAll('input[id^="input-sp-rotor"]'),
             currentPosition: document.querySelectorAll('input[id^="input-cp-rotor"]'),
             turnLetter: document.querySelectorAll('input[id^="input-turn-rotor"]')
-        }
+        },
+        plugboard: document.getElementById('input-plugboard')
     }
 }

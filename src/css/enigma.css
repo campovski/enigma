@@ -10,6 +10,18 @@ body:hover {
     user-select: none;
 }
 
+p {
+    text-transform: uppercase;
+}
+
+label {
+    display: block;
+    margin-bottom: 3px;
+    font-family: "Courier New", Courier, monospace;
+    font-size: small;
+    text-transform: uppercase;
+}
+
 /*
 LEFT COLUMN: INPUT AND OUTPUT TEXT
  */
@@ -24,10 +36,12 @@ LEFT COLUMN: INPUT AND OUTPUT TEXT
     margin: 50px auto;
 }
 
-.text-header {
-    margin: 0 0 5px 0;
-    font-family: "Times New Roman", Times, serif;
-    font-size: large;
+.title {
+    margin: 0;
+}
+
+.text-container > .title {
+    margin-left: 2px;
 }
 
 .text-code {
@@ -123,18 +137,7 @@ RIGHT COLUMN: SETTINGS
     text-align: center;
 }
 
-.setting-title {
-    margin: 0;
-    text-transform: uppercase;
-}
-
-label {
-    display: block;
-    margin-bottom: 3px;
-    font-family: "Courier New", Courier, monospace;
-}
-
-.setting-rotor-container {
+.setting-container {
     width: 100%;
     margin: 0 auto 10px auto;
     padding: 5px 0;
@@ -148,7 +151,7 @@ p.setting-rotor-name {
     font-family: "Courier New", Courier, monospace;
 }
 
-.setting-rotor-field-container {
+.setting-field-container {
     width: 100%;
     margin: 10px auto;
     text-align: center;
@@ -161,7 +164,6 @@ p.setting-rotor-name {
 }
 
 .setting-rotor {
-    display: inline;
     width: 65px;
     height: 40px;
     background-color: inherit;
@@ -171,6 +173,11 @@ p.setting-rotor-name {
     font-size: 20px;
     font-family: "Courier New", Courier, monospace;
     line-height: 20px;
+}
+
+input.wide {
+    width: 95%;
+    height: 40px;
 }
 
 select.setting-rotor {

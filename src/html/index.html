@@ -9,11 +9,11 @@
 <body>
 <div id="text">
     <div id="input" class="text-container">
-        <p class="text-header">Input</p>
+        <p class="title">Input</p>
         <p id="text-input" class="text-code"></p>
     </div>
     <div id="output" class="text-container">
-        <p class="text-header">Output</p>
+        <p class="title">Output</p>
         <p id="text-output" class="text-code"></p>
     </div>
 </div>
@@ -89,10 +89,10 @@
 </div>
 <div id="settings">
     <div class="setting">
-        <p class="setting-title">Rotor settings</p>
-        <div id="setting-rotor-fast" class="setting-rotor-container">
+        <p class="title">Rotor settings</p>
+        <div id="setting-rotor-fast" class="setting-container">
             <p class="setting-rotor-name">Fast</p>
-            <div class="setting-rotor-field-container">
+            <div class="setting-field-container">
                 <div class="setting-rotor-field">
                     <label for="select-rotor-fast">rotor<br />type</label>
                     <select id="select-rotor-fast" class="setting-rotor"></select>
@@ -111,9 +111,9 @@
                 </div>
             </div>
         </div>
-        <div id="setting-rotor-mid" class="setting-rotor-container">
+        <div id="setting-rotor-mid" class="setting-container">
             <p class="setting-rotor-name">Mid</p>
-            <div class="setting-rotor-field-container">
+            <div class="setting-field-container">
                 <div class="setting-rotor-field">
                     <label for="select-rotor-mid">rotor<br />type</label>
                     <select id="select-rotor-mid" class="setting-rotor"></select>
@@ -132,9 +132,9 @@
                 </div>
             </div>
         </div>
-        <div id="setting-rotor-slow" class="setting-rotor-container">
+        <div id="setting-rotor-slow" class="setting-container">
             <p class="setting-rotor-name">Slow</p>
-            <div class="setting-rotor-field-container">
+            <div class="setting-field-container">
                 <div class="setting-rotor-field">
                     <label for="select-rotor-slow">rotor<br />type</label>
                     <select id="select-rotor-slow" class="setting-rotor"></select>
@@ -151,6 +151,15 @@
                     <label for="input-turn-rotor-slow">turn<br />next</label>
                     <input type="text" id="input-turn-rotor-slow" class="setting-rotor disabled" maxlength="1" disabled>
                 </div>
+            </div>
+        </div>
+    </div>
+    <div class="setting">
+        <p class="title">Plugboard settings</p>
+        <div id="setting-plugboard" class="setting-container">
+            <div class="setting-field-container">
+                <label for="input-plugboard">plugboard connections</label>
+                <input type="text" id="input-plugboard" class="setting-rotor wide" maxlength="29">
             </div>
         </div>
     </div>
