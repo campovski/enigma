@@ -280,7 +280,7 @@ function onButtonPressed(event) {
     if (event.which >= 65 && event.which <= 90) {
         document.removeEventListener('keydown', onButtonPressed);
 
-        const char = String.fromCharCode(event.which);
+        const char = event.key.toUpperCase();
         const buttonPressed = document.getElementById('keyboard-' + char);
         buttonPressed.classList.add('keyboard-letter-pressed');
         const labelInput = document.getElementById('text-input');
@@ -299,16 +299,19 @@ function onButtonPressed(event) {
 
 function onButtonReleased(event) {
     if (event.which >= 65 && event.which <= 90) {
-        const char = String.fromCharCode(event.which);
-        const buttonPressed = document.getElementById('keyboard-' + char);
-        buttonPressed.classList.remove('keyboard-letter-pressed');
+        const char = event.key.toUpperCase();
+        const inputText = document.getElementById('text-input').innerText;
+        if (char === inputText[inputText.length - 1]) {
+            const buttonPressed = document.getElementById('keyboard-' + char);
+            buttonPressed.classList.remove('keyboard-letter-pressed');
 
-        const lamps = document.getElementsByClassName('lampboard-letter');
-        for (const lamp of lamps) {
-            lamp.classList.remove('lampboard-letter-pressed');
+            const lamps = document.getElementsByClassName('lampboard-letter');
+            for (const lamp of lamps) {
+                lamp.classList.remove('lampboard-letter-pressed');
+            }
+
+            document.addEventListener('keydown', onButtonPressed);
         }
-
-        document.addEventListener('keydown', onButtonPressed);
     }
 }
 
