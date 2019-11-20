@@ -2,6 +2,17 @@ body {
     background-color: cornsilk;
 }
 
+body:hover {
+    cursor: default;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/*
+LEFT COLUMN: INPUT AND OUTPUT TEXT
+ */
 #text {
     width: 20%;
     margin: 20px auto;
@@ -33,9 +44,12 @@ body {
     display: none;
 }
 
+/*
+MIDDLE COLUMN: ENIGMA
+ */
 #enigma {
     margin: 0 auto;
-    width: 60%;
+    width: 50%;
     text-align: center;
     float: left;
 }
@@ -92,4 +106,95 @@ body {
 .lampboard-letter-pressed {
     background-color: gold;
     color: black;
+}
+
+/*
+RIGHT COLUMN: SETTINGS
+ */
+#settings {
+    width: 30%;
+    margin: 20px auto;
+    float: left;
+}
+
+.setting {
+    width: 90%;
+    margin: 50px auto;
+    text-align: center;
+}
+
+.setting-title {
+    margin: 0;
+    text-transform: uppercase;
+}
+
+label {
+    display: block;
+    margin-bottom: 3px;
+    font-family: "Courier New", Courier, monospace;
+}
+
+.setting-rotor-container {
+    width: 100%;
+    margin: 0 auto 10px auto;
+    padding: 5px 0;
+    border: 1px solid burlywood;
+    text-align: center;
+}
+
+p.setting-rotor-name {
+    font-size: x-large;
+    margin: 10px 0;
+    font-family: "Courier New", Courier, monospace;
+}
+
+.setting-rotor-field-container {
+    width: 100%;
+    margin: 10px auto;
+    text-align: center;
+}
+
+.setting-rotor-field {
+    display: inline-block;
+    width: 100px;
+    margin: 0 auto;
+}
+
+.setting-rotor {
+    display: inline;
+    width: 65px;
+    height: 40px;
+    background-color: inherit;
+    border: 1px solid burlywood;
+    outline: none;
+    box-sizing: border-box;
+    font-size: 20px;
+    font-family: "Courier New", Courier, monospace;
+    line-height: 20px;
+}
+
+select.setting-rotor {
+    padding-left: 5px;
+}
+
+input.setting-rotor {
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.setting-rotor:hover,
+.setting-rotor:focus {
+    border: 1px solid saddlebrown;
+}
+
+.disabled,
+.disabled:hover {
+    border: 1px dashed burlywood;
+}
+
+input.wrong-input,
+input.wrong-input:hover,
+input.wrong-input:focus {
+    border: 1px solid red;
+    color: red;
 }

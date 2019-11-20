@@ -73,8 +73,60 @@ let rotorsPositions;
 window.onload = function () {
     setRandomInitialSetting();
 
-    document.addEventListener('keydown', onButtonPressed);
-    document.addEventListener('keyup', onButtonReleased);
+    // Populate select objects for rotors' settings.
+    const DOMRotors = {
+        fast: document.getElementById('select-rotor-fast'),
+        mid: document.getElementById('select-rotor-mid'),
+        slow: document.getElementById('select-rotor-slow')
+    };
+    for (const speed in DOMRotors) {
+        for (let i = 0; i < rotors.length; i++) {
+            const option = document.createElement('option');
+            option.value = rotors[i].name;
+            option.text = rotors[i].name;
+            DOMRotors[speed].add(option);
+
+            if (rotors[i].name === rotorsInstalled[speed].name) {
+                DOMRotors[speed].selectedIndex = i;
+            }
+        }
+    }
+
+    const DOMInitialPositions = {
+        fast: document.getElementById('input-sp-rotor-fast'),
+        mid: document.getElementById('input-sp-rotor-mid'),
+        slow: document.getElementById('input-sp-rotor-slow')
+    };
+    const DOMCurrentPositions = {
+        fast: document.getElementById('input-cp-rotor-fast'),
+        mid: document.getElementById('input-cp-rotor-mid'),
+        slow: document.getElementById('input-cp-rotor-slow')
+    };
+    const DOMTurnNextRotors = {
+        fast: document.getElementById('input-turn-rotor-fast'),
+        mid: document.getElementById('input-turn-rotor-mid'),
+        slow: document.getElementById('input-turn-rotor-slow')
+    };
+    for (const speed in DOMInitialPositions) {
+        DOMInitialPositions[speed].value = alphabet[rotorsPositions[speed]];
+        DOMCurrentPositions[speed].value = alphabet[rotorsPositions[speed]];
+        DOMTurnNextRotors[speed].value = rotorsInstalled[speed].turnLetter;
+    }
+
+    document.addEventListener('keydown', onButtonPressed, false);
+    document.addEventListener('keyup', onButtonReleased, false);
+
+    const settingsElements = getDomSettingsElements();
+    for (const rotorSelect of settingsElements.rotors.type) {
+        rotorSelect.addEventListener('change', onSettingChange);
+        rotorSelect.addEventListener('keydown', stopEvent, true);
+        rotorSelect.addEventListener('keyup', stopEvent, true);
+    }
+    for (const rotorInitialPositionInput of settingsElements.rotors.initialPosition) {
+        rotorInitialPositionInput.addEventListener('input', onSettingChange);
+        rotorInitialPositionInput.addEventListener('keydown', stopEvent, true);
+        rotorInitialPositionInput.addEventListener('keyup', stopEvent, true);
+    }
 };
 
 function setTestingInitialSetting() {
@@ -148,6 +200,82 @@ function pickRandomPlugboardSetting() {
     return plugboard;
 }
 
+function stepRotors() {
+    if (rotorsPositions.fast === rotorsInstalled.fast.turn) {
+        if (rotorsPositions.mid === rotorsInstalled.mid.turn) {
+            rotorsPositions.slow = (rotorsPositions.slow + 1) % nLetters;
+        }
+        rotorsPositions.mid = (rotorsPositions.mid + 1) % nLetters;
+    }
+    rotorsPositions.fast = (rotorsPositions.fast + 1) % nLetters;
+
+    updateDomRotors();
+}
+
+function encodeCharacter(c) {
+    stepRotors();
+
+    // TODO map with plugboard
+    let letter = mapWithPlugboard(c);
+    letter = mapWithRotor(letter, 'fast');
+    letter = mapWithRotor(letter, 'mid');
+    letter = mapWithRotor(letter, 'slow');
+    letter = mapWithReflector(letter);
+    letter = mapWithInverseRotor(letter, 'slow');
+    letter = mapWithInverseRotor(letter, 'mid');
+    letter = mapWithInverseRotor(letter, 'fast');
+    letter = mapWithPlugboard(letter);
+
+    return letter;
+}
+
+function encodeString(s) {
+    let code = '';
+    for (let i = 0; i < s.length; i++) {
+        code += encodeCharacter(s[i]);
+    }
+    return code;
+}
+
+function mapWithPlugboard(char) {
+    return plugboard[char] === undefined ? char : plugboard[char];
+}
+
+function mapWithRotor(char, rotor) {
+    // Get index of input character.
+    const rotorInput = alphabet.indexOf(char);
+    // Get letter that enters the wiring.
+    const rotorBeforeWiring = alphabet[(rotorInput + rotorsPositions[rotor] + nLetters) % nLetters];
+    // Send the signal through wiring.
+    const rotorAfterWiring = rotorsInstalled[rotor].wiring[alphabet.indexOf(rotorBeforeWiring)];
+    // Return actual output of the rotor.
+    return alphabet[(alphabet.indexOf(rotorAfterWiring) - rotorsPositions[rotor] + nLetters) % nLetters];
+}
+
+function mapWithReflector(char) {
+    const positionInAlphabet = alphabet.indexOf(char);
+    return reflectorInstalled.wiring[positionInAlphabet];
+}
+
+function mapWithInverseRotor(char, rotor) {
+    // Get index of input character.
+    const rotorInput = alphabet.indexOf(char);
+    // Get letter on the right side of the wiring.
+    const rotorBeforeWiring = alphabet[(rotorInput + rotorsPositions[rotor] + nLetters) % nLetters];
+    // Send the signal back through wiring.
+    const rotorAfterWiring = alphabet[rotorsInstalled[rotor].wiring.indexOf(rotorBeforeWiring)];
+    // Return the actual character.
+    return alphabet[(alphabet.indexOf(rotorAfterWiring) - rotorsPositions[rotor] + nLetters) % nLetters];
+}
+
+function updateDomRotors() {
+    const settings = getDomSettingsElements();
+    for (const currentPosition of settings.rotors.currentPosition) {
+        const rotor = currentPosition.id.split('-')[3];
+        currentPosition.value = alphabet[rotorsPositions[rotor]];
+    }
+}
+
 function onButtonPressed(event) {
     if (event.which >= 65 && event.which <= 90) {
         document.removeEventListener('keydown', onButtonPressed);
@@ -184,60 +312,63 @@ function onButtonReleased(event) {
     }
 }
 
-function stepRotors() {
-    if (rotorsPositions.fast === rotorsInstalled.fast.turn) {
-        if (rotorsPositions.mid === rotorsInstalled.mid.turn) {
-            rotorsPositions.slow = (rotorsPositions.slow + 1) % nLetters;
-        }
-        rotorsPositions.mid = (rotorsPositions.mid + 1) % nLetters;
+function onSettingChange(event) {
+    // In case a user empties the input element, we asynchronously wait if he will input
+    // something. If not, we use the default value and perform the change of settings.
+    if (event !== undefined && event.data === null) {
+        setTimeout(onSettingChange, 2000);
+        return;
     }
-    rotorsPositions.fast = (rotorsPositions.fast + 1) % nLetters;
+
+    const settings = getDomSettingsElements();
+    const string = document.getElementById('text-input').innerText;
+
+    for (const selectRotor of settings.rotors.type) {
+        rotorsInstalled[selectRotor.id.split('-')[2]] = rotors[selectRotor.selectedIndex];
+    }
+
+    for (const inputInitialPosition of settings.rotors.initialPosition) {
+        inputInitialPosition.classList.remove('wrong-input');
+        const rotor = inputInitialPosition.id.split('-')[3];
+        const inputInitialPositionValue = inputInitialPosition.value.toUpperCase();
+        if (inputInitialPositionValue === '') {
+            rotorsPositions[rotor] = 0;
+            inputInitialPosition.value = alphabet[0];
+        } else {
+            const initialPosition = alphabet.indexOf(inputInitialPositionValue);
+            if (initialPosition !== -1 && inputInitialPosition.value !== '') {
+                rotorsPositions[rotor] = initialPosition;
+            } else {
+                inputInitialPosition.classList.add('wrong-input');
+                return;
+            }
+        }
+    }
+
+    for (const inputCurrentPosition of settings.rotors.currentPosition) {
+        const rotor = inputCurrentPosition.id.split('-')[3];
+        inputCurrentPosition.value = alphabet[rotorsPositions[rotor]];
+    }
+
+    for (const inputTurnLetter of settings.rotors.turnLetter) {
+        const rotor = inputTurnLetter.id.split('-')[3];
+        inputTurnLetter.value = rotorsInstalled[rotor].turnLetter;
+    }
+
+    document.getElementById('text-output').innerText = encodeString(string);
 }
 
-function encodeCharacter(c) {
-    stepRotors();
-
-    // TODO map with plugboard
-    let letter = mapWithPlugboard(c);
-    letter = mapWithRotor(letter, 'fast');
-    letter = mapWithRotor(letter, 'mid');
-    letter = mapWithRotor(letter, 'slow');
-    letter = mapWithReflector(letter);
-    letter = mapWithInverseRotor(letter, 'slow');
-    letter = mapWithInverseRotor(letter, 'mid');
-    letter = mapWithInverseRotor(letter, 'fast');
-    letter = mapWithPlugboard(letter);
-
-    return letter;
+function stopEvent(event) {
+    event.stopPropagation();
 }
 
-function mapWithPlugboard(char) {
-    return plugboard[char] === undefined ? char : plugboard[char];
-}
-
-function mapWithRotor(char, rotor) {
-    // Get index of input character.
-    const rotorInput = alphabet.indexOf(char);
-    // Get letter that enters the wiring.
-    const rotorBeforeWiring = alphabet[(rotorInput + rotorsPositions[rotor] + nLetters) % nLetters];
-    // Send the signal through wiring.
-    const rotorAfterWiring = rotorsInstalled[rotor].wiring[alphabet.indexOf(rotorBeforeWiring)];
-    // Return actual output of the rotor.
-    return alphabet[(alphabet.indexOf(rotorAfterWiring) - rotorsPositions[rotor] + nLetters) % nLetters];
-}
-
-function mapWithReflector(char) {
-    const positionInAlphabet = alphabet.indexOf(char);
-    return reflectorInstalled.wiring[positionInAlphabet];
-}
-
-function mapWithInverseRotor(char, rotor) {
-    // Get index of input character.
-    const rotorInput = alphabet.indexOf(char);
-    // Get letter on the right side of the wiring.
-    const rotorBeforeWiring = alphabet[(rotorInput + rotorsPositions[rotor] + nLetters) % nLetters];
-    // Send the signal back through wiring.
-    const rotorAfterWiring = alphabet[rotorsInstalled[rotor].wiring.indexOf(rotorBeforeWiring)];
-    // Return the actual character.
-    return alphabet[(alphabet.indexOf(rotorAfterWiring) - rotorsPositions[rotor] + nLetters) % nLetters];
+function getDomSettingsElements() {
+    return {
+        rotors: {
+            type: document.querySelectorAll('select.setting-rotor'),
+            initialPosition: document.querySelectorAll('input[id^="input-sp-rotor"]'),
+            currentPosition: document.querySelectorAll('input[id^="input-cp-rotor"]'),
+            turnLetter: document.querySelectorAll('input[id^="input-turn-rotor"]')
+        }
+    }
 }
