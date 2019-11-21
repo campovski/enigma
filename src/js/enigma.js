@@ -123,11 +123,13 @@ window.onload = function () {
     const settingsElements = getDomSettingsElements();
     for (const rotorSelect of settingsElements.rotors.type) {
         rotorSelect.addEventListener('change', onSettingChange);
+        rotorSelect.addEventListener('wheel', onWheelSettingInput);
         rotorSelect.addEventListener('keydown', stopEvent, true);
         rotorSelect.addEventListener('keyup', stopEvent, true);
     }
     for (const rotorInitialPositionInput of settingsElements.rotors.initialPosition) {
         rotorInitialPositionInput.addEventListener('input', onSettingChange);
+        rotorInitialPositionInput.addEventListener('wheel', onWheelSettingInput);
         rotorInitialPositionInput.addEventListener('keydown', stopEvent, true);
         rotorInitialPositionInput.addEventListener('keyup', stopEvent, true);
     }
@@ -321,8 +323,25 @@ function onButtonReleased(event) {
     }
 }
 
+function onWheelSettingInput(event) {
+    stopEvent(event);
+
+    const delta = event.deltaY > 0 ? 1 : -1;
+    switch (event.target.localName) {
+        case 'input':
+            event.target.value = alphabet[(alphabet.indexOf(event.target.value) + delta + nLetters) % nLetters];
+            break;
+        case 'select':
+            event.target.selectedIndex = (event.target.selectedIndex + delta + rotors.length) % rotors.length;
+            break;
+        default:
+            console.log(event);
+    }
+}
+
 function onSettingChange(event) {
     const settings = getDomSettingsElements();
+    console.log(event);
 
     // In case a user empties the input element, we asynchronously wait if he will input
     // something. If not, we use the default value and perform the change of settings.
@@ -441,6 +460,7 @@ function isLetter(c) {
 }
 
 function stopEvent(event) {
+    event.preventDefault();
     event.stopPropagation();
 }
 
