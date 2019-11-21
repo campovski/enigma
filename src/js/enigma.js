@@ -124,18 +124,18 @@ window.onload = function () {
     for (const rotorSelect of settingsElements.rotors.type) {
         rotorSelect.addEventListener('change', onSettingChange);
         rotorSelect.addEventListener('wheel', onWheelSettingInput);
-        rotorSelect.addEventListener('keydown', stopEvent, true);
-        rotorSelect.addEventListener('keyup', stopEvent, true);
+        rotorSelect.addEventListener('keydown', event => event.stopPropagation(), true);
+        rotorSelect.addEventListener('keyup', event => event.stopPropagation(), true);
     }
     for (const rotorInitialPositionInput of settingsElements.rotors.initialPosition) {
         rotorInitialPositionInput.addEventListener('input', onSettingChange);
         rotorInitialPositionInput.addEventListener('wheel', onWheelSettingInput);
-        rotorInitialPositionInput.addEventListener('keydown', stopEvent, true);
-        rotorInitialPositionInput.addEventListener('keyup', stopEvent, true);
+        rotorInitialPositionInput.addEventListener('keydown', event => event.stopPropagation(), true);
+        rotorInitialPositionInput.addEventListener('keyup', event => event.stopPropagation(), true);
     }
     settingsElements.plugboard.addEventListener('input', onSettingChange);
-    settingsElements.plugboard.addEventListener('keydown', stopEvent, true);
-    settingsElements.plugboard.addEventListener('keyup', stopEvent, true);
+    settingsElements.plugboard.addEventListener('keydown', event => event.stopPropagation(), true);
+    settingsElements.plugboard.addEventListener('keyup', event => event.stopPropagation(), true);
 };
 
 function setTestingInitialSetting() {
@@ -324,7 +324,7 @@ function onButtonReleased(event) {
 }
 
 function onWheelSettingInput(event) {
-    stopEvent(event);
+    event.preventDefault();
 
     const delta = event.deltaY > 0 ? 1 : -1;
     switch (event.target.localName) {
@@ -337,11 +337,12 @@ function onWheelSettingInput(event) {
         default:
             console.log(event);
     }
+
+    onSettingChange();
 }
 
 function onSettingChange(event) {
     const settings = getDomSettingsElements();
-    console.log(event);
 
     // In case a user empties the input element, we asynchronously wait if he will input
     // something. If not, we use the default value and perform the change of settings.
@@ -457,11 +458,6 @@ function plugboardToString(plugboard) {
 
 function isLetter(c) {
     return c.toLowerCase() !== c.toUpperCase();
-}
-
-function stopEvent(event) {
-    event.preventDefault();
-    event.stopPropagation();
 }
 
 function getDomSettingsElements() {
