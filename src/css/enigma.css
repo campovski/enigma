@@ -69,7 +69,7 @@ MIDDLE COLUMN: ENIGMA
 }
 
 .keyboard {
-    width: 100%;
+    width: 80%;
     margin: 10px auto;
     padding: 1px 0;
     border-radius: 25px;
@@ -85,19 +85,19 @@ MIDDLE COLUMN: ENIGMA
 
 .keyboard-row {
     display: block;
-    margin: 40px auto;
+    margin: 20px auto;
 }
 
 .keyboard-letter {
     display: inline-block;
-    margin: 0 20px;
-    width: 50px;
-    height: 50px;
-    line-height: 50px;
+    margin: 0 10px;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
     background-color: black;
-    border-radius: 25px;
+    border-radius: 20px;
     color: wheat;
-    font-size: 30px;
+    font-size: 25px;
 }
 
 .keyboard-letter-pressed {
@@ -107,19 +107,52 @@ MIDDLE COLUMN: ENIGMA
 
 .lampboard-letter {
     display: inline-block;
-    margin: 0 20px;
-    width: 50px;
-    height: 50px;
-    line-height: 50px;
+    margin: 0 10px;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
     background-color: black;
-    border-radius: 25px;
+    border-radius: 20px;
     color: wheat;
-    font-size: 30px;
+    font-size: 25px;
 }
 
 .lampboard-letter-pressed {
     background-color: gold;
     color: black;
+}
+
+#rotors {
+    width: 100%;
+    margin: 10px auto;
+}
+
+.rotor {
+    width: 25%;
+    display: inline-block;
+    margin: 0 2%;
+    padding: 5px;
+    border: 1px solid gray;
+}
+
+.rotor-column {
+    display: inline-block;
+}
+
+.rotor-column-out {
+    float: left;
+}
+
+.rotor-column-in {
+    float: right;
+}
+
+.rotor-column-element {
+    font-size: small;
+}
+
+.rotor-column-element-turn {
+    font-weight: bold;
 }
 
 /*
@@ -209,3 +242,4 @@ input.wrong-input:focus {
 option {
     background-color: cornsilk;
 }
+

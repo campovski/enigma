@@ -73,21 +73,21 @@ let rotorsPositions;
 window.onload = function () {
     setRandomInitialSetting();
 
-    // Populate select objects for rotors' settings.
-    const DOMRotors = {
+    // Populate rotors' settings.
+    const DOMSettingsRotors = {
         fast: document.getElementById('select-rotor-fast'),
         mid: document.getElementById('select-rotor-mid'),
         slow: document.getElementById('select-rotor-slow')
     };
-    for (const speed in DOMRotors) {
+    for (const speed in DOMSettingsRotors) {
         for (let i = 0; i < rotors.length; i++) {
             const option = document.createElement('option');
             option.value = rotors[i].name;
             option.text = rotors[i].name;
-            DOMRotors[speed].add(option);
+            DOMSettingsRotors[speed].add(option);
 
             if (rotors[i].name === rotorsInstalled[speed].name) {
-                DOMRotors[speed].selectedIndex = i;
+                DOMSettingsRotors[speed].selectedIndex = i;
             }
         }
     }
@@ -116,7 +116,10 @@ window.onload = function () {
     const DOMPlugboard = document.getElementById('input-plugboard');
     DOMPlugboard.value = plugboardToString(plugboard);
 
-    // Event listeners
+    // Populate rotors.
+    updateDomRotors();
+
+    // Add event listeners.
     document.addEventListener('keydown', onButtonPressed, false);
     document.addEventListener('keyup', onButtonReleased, false);
 
@@ -277,10 +280,59 @@ function mapWithInverseRotor(char, rotor) {
 }
 
 function updateDomRotors() {
+    // Update settings position.
     const settings = getDomSettingsElements();
     for (const currentPosition of settings.rotors.currentPosition) {
         const rotor = currentPosition.id.split('-')[3];
         currentPosition.value = alphabet[rotorsPositions[rotor]];
+    }
+
+    // Update enigma rotors.
+    for (let i = 0; i < nLetters; i++) {
+        const DOMPositionSlowOut = document.getElementById('rotor-slow-out-' + i.toString());
+        const DOMPositionMidOut = document.getElementById('rotor-mid-out-' + i.toString());
+        const DOMPositionFastOut = document.getElementById('rotor-fast-out-' + i.toString());
+        const DOMPositionSlowIn = document.getElementById('rotor-slow-in-' + i.toString());
+        const DOMPositionMidIn = document.getElementById('rotor-mid-in-' + i.toString());
+        const DOMPositionFastIn = document.getElementById('rotor-fast-in-' + i.toString());
+
+        const indexSlow = (i + rotorsPositions.slow + nLetters) % nLetters;
+        const indexMid = (i + rotorsPositions.mid + nLetters) % nLetters;
+        const indexFast = (i + rotorsPositions.fast + nLetters) % nLetters;
+
+        DOMPositionSlowOut.innerText = alphabet[indexSlow];
+        DOMPositionMidOut.innerText = alphabet[indexMid];
+        DOMPositionFastOut.innerText = alphabet[indexFast];
+        DOMPositionSlowIn.innerText = alphabet[indexSlow];
+        DOMPositionMidIn.innerText = alphabet[indexMid];
+        DOMPositionFastIn.innerText = alphabet[indexFast];
+
+        DOMPositionSlowOut.classList.remove('rotor-column-element-turn');
+        DOMPositionMidOut.classList.remove('rotor-column-element-turn');
+        DOMPositionFastOut.classList.remove('rotor-column-element-turn');
+        DOMPositionSlowIn.classList.remove('rotor-column-element-turn');
+        DOMPositionMidIn.classList.remove('rotor-column-element-turn');
+        DOMPositionFastIn.classList.remove('rotor-column-element-turn');
+        if (indexSlow === rotorsInstalled.slow.turn) {
+            DOMPositionSlowOut.classList.add('rotor-column-element-turn');
+            DOMPositionSlowIn.classList.add('rotor-column-element-turn');
+        }
+        if (indexMid === rotorsInstalled.mid.turn) {
+            DOMPositionMidOut.classList.add('rotor-column-element-turn');
+            DOMPositionMidIn.classList.add('rotor-column-element-turn');
+        }
+        if (indexFast === rotorsInstalled.fast.turn) {
+            DOMPositionFastOut.classList.add('rotor-column-element-turn');
+            DOMPositionFastIn.classList.add('rotor-column-element-turn');
+        }
+        drawRotorConnections();
+    }
+}
+
+function drawRotorConnections() {
+    const domRotorElements = getDomRotorElements();
+    for (const speed in domRotorElements) {
+        
     }
 }
 
@@ -469,5 +521,22 @@ function getDomSettingsElements() {
             turnLetter: document.querySelectorAll('input[id^="input-turn-rotor"]')
         },
         plugboard: document.getElementById('input-plugboard')
+    }
+}
+
+function getDomRotorElements() {
+    return {
+        fast: {
+            in: document.querySelectorAll('div[id^="rotor-fast-in-"]'),
+            out: document.querySelectorAll('div[id^="rotor-fast-in-"]')
+        },
+        mid: {
+            in: document.querySelectorAll('div[id^="rotor-mid-in-"]'),
+            out: document.querySelectorAll('div[id^="rotor-mid-in-"]')
+        },
+        slow: {
+            in: document.querySelectorAll('div[id^="rotor-slow-in-"]'),
+            out: document.querySelectorAll('div[id^="rotor-slow-in-"]')
+        }
     }
 }
